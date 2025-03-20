@@ -1,47 +1,70 @@
 import { useDropzone } from 'react-dropzone'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
-import { processContract } from '../Api.jsx'
 import './ContractDropzone.css'
 
-export default function ContractDropzone({ onFilesUploaded }) {
-    const onDrop = useCallback(
-        async (acceptedFiles) => {
-            console.log('Загруженные файлы:', acceptedFiles)
+export default function ContractDropzone({ onFilesDropped }) {
+	const [file, setFile] = useState(null)
 
-            if (acceptedFiles.length > 0) {
-                const file = acceptedFiles[0]
-                try {
-                    const response = await processContract(file)
-                    console.log('Ответ от сервера:', response)
+	const onDrop = useCallback(
+		async (acceptedFiles) => {
+			if (acceptedFiles.length > 0) {
+				const selectedFile = acceptedFiles[0]
+				setFile(selectedFile)
 
-                    if (onFilesUploaded) onFilesUploaded(response)
-                } catch (error) {
-                    console.error('Ошибка загрузки файла:', error)
-                }
-            }
-        },
-        [onFilesUploaded]
-    )
+				try {
+					// const response = await processContract(selectedFile);
+					const response = 'success'
+					console.log('SERVER RESPONSE:', response)
 
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
-        accept: { 'text/plain': ['.sol'] },
-        multiple: false,
-        onDrop,
-    })
+					if (onFilesDropped) {
+						onFilesDropped(response)
+					}
+				} catch (error) {
+					console.error('FILE ERROR:', error)
+				}
+			}
+		},
+		[onFilesDropped]
+	)
 
-    return (
-        <div
-            {...getRootProps()}
-            className={`dropzone ${isDragActive ? 'dropzone-active' : ''}`}
-        >
-            <input {...getInputProps()} />
-            <p>
-                {isDragActive
-                    ? 'Отпустите файл здесь...'
-                    : 'Перетащите файл сюда или нажмите для выбора'}
-            </p>
-            <p className="dropzone-hint">Формат: .sol</p>
-        </div>
-    )
+	const removeFile = (e) => {
+		e.stopPropagation()
+		setFile(null)
+	}
+
+	const { getRootProps, getInputProps, isDragActive } = useDropzone({
+		accept: { 'text/plain': ['.sol'] },
+		multiple: false,
+		onDrop,
+		noClick: !!file,
+	})
+
+	return (
+		<div
+			{...getRootProps()}
+			className={`dropzone ${isDragActive ? 'dropzone-active' : ''} ${
+				file ? 'dropzone-filled' : ''
+			}`}
+		>
+			<input {...getInputProps()} />
+			{file ? (
+				<div className="file-info">
+					<p>Загружен: {file.name}</p>
+					<button className="remove-btn" onClick={removeFile}>
+						Удалить
+					</button>
+				</div>
+			) : (
+				<>
+					<p>
+						{isDragActive
+							? 'Отпустите файл здесь...'
+							: 'Перетащите файл сюда или нажмите для выбора'}
+					</p>
+					<p className="dropzone-hint">Формат: .sol</p>
+				</>
+			)}
+		</div>
+	)
 }
