@@ -1,13 +1,13 @@
 .dropzone {
-	width: 400px; /* Фиксированная ширина */
-	height: 150px; /* Фиксированная высота */
-	border: 2px dashed #555;
-	border-radius: 10px;
+	width: 90vw;
+	height: 30vh;
+	border: 0.15rem dashed #555;
+	border-radius: 1rem;
 	padding: 20px;
 	text-align: center;
 	cursor: pointer;
 	transition: background-color 0.3s, border-color 0.3s;
-	background-color: #1a1a1a;
+	background-color: #1f1f1f;
 	color: white;
 	display: flex;
 	flex-direction: column;
@@ -16,30 +16,31 @@
 }
 
 .dropzone:hover {
-	background-color: #222;
-	border-color: #4a90e2;
+	background-color: #272727;
+	border-color: #227ce2;
 }
 
-/* Активное состояние */
 .dropzone-active {
 	background-color: #333;
-	border-color: #4a90e2;
+	border-color: #227ce2;
 }
 
-/* Когда файл загружен */
 .dropzone-filled {
-	background-color: #2a2a2a;
-	border-color: #66bb6a;
+	background-color: #3cff000a;
+	border-color: #32cc3a;
 	cursor: default;
 }
 
-/* Убираем hover-эффекты, если файл загружен */
 .dropzone-filled:hover {
-	background-color: #2a2a2a;
-	border-color: #66bb6a;
+	background-color: #3cff000a;
+	border-color: #32cc3a;
 }
 
-/* Фикс ширины текста, чтобы не ломало размеры компонента */
+.dropzone-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 .file-info {
 	display: flex;
 	justify-content: space-between;
@@ -70,4 +71,8 @@
 
 .remove-btn:hover {
 	background-color: #c0392b;
+}
+
+.remove-btn:enabled {
+	outline: none;
 }
