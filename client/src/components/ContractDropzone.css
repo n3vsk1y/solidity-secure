@@ -1,0 +1,78 @@
+.dropzone {
+	width: 90vw;
+	height: 30vh;
+	border: 0.15rem dashed #555;
+	border-radius: 1rem;
+	padding: 20px;
+	text-align: center;
+	cursor: pointer;
+	transition: background-color 0.3s, border-color 0.3s;
+	background-color: #1f1f1f;
+	color: white;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.dropzone:hover {
+	background-color: #272727;
+	border-color: #227ce2;
+}
+
+.dropzone-active {
+	background-color: #333;
+	border-color: #227ce2;
+}
+
+.dropzone-filled {
+	background-color: #3cff000a;
+	border-color: #32cc3a;
+	cursor: default;
+}
+
+.dropzone-filled:hover {
+	background-color: #3cff000a;
+	border-color: #32cc3a;
+}
+
+.dropzone-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.file-info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	overflow: hidden;
+}
+
+.file-info p {
+	flex-grow: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: left;
+}
+
+.remove-btn {
+	background-color: #e74c3c;
+	color: white;
+	border: none;
+	padding: 5px 10px;
+	cursor: pointer;
+	border-radius: 5px;
+	transition: background-color 0.3s;
+	flex-shrink: 0;
+}
+
+.remove-btn:hover {
+	background-color: #c0392b;
+}
+
+.remove-btn:enabled {
+	outline: none;
+}
