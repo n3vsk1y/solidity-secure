@@ -1,31 +1,31 @@
 services:
   analysis:
-    build: ./services/analysis_service
-    container_name: analysis-container
+    build: ./services/analysis
+    restart: always
     ports:
       - "8001:8000"
     networks:
       - app-network
     
   auth:
-    build: ./services/auth_service
-    container_name: auth-container
+    build: ./services/auth
+    restart: always
     ports:
       - "8002:8000"
     networks:
       - app-network
 
   history:
-    build: ./services/history_service
-    container_name: history-container
+    build: ./services/history
+    restart: always
     ports:
       - "8003:8000"
     networks:
       - app-network
 
   upload:
-    build: ./services/upload_service
-    container_name: upload-container
+    build: ./services/upload
+    restart: always
     ports:
       - "8004:8000"
     networks:
@@ -33,9 +33,10 @@ services:
 
   nginx:
     build: ./nginx
-    container_name: nginx
     ports:
       - "80:80"
+    volumes:
+      - frontend-dist:/usr/share/nginx/html
     networks:
       - app-network
     depends_on:
@@ -48,25 +49,19 @@ services:
     build: ./client
     # ports:
     #   - '3000:80'
-    environment:
-      - VITE_HOST=0.0.0.0
+    # environment:
+    #   - VITE_HOST=0.0.0.0
+    volumes:
+      - frontend-dist:/app/dist
+    networks:
+      - app-network
+    depends_on:
+      - nginx
 
 networks:
   app-network:
     driver: bridge
 
-
-
-
-
-  # backend:
-  #   build: ./backend
-  #   ports:
-  #       - '8000:8000'
-  #   environment:
-  #       - DOCKER_ENV=true
-  #   volumes:
-  #       - ./backend:/app
-  #   restart: always
-  #   command: bash -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+volumes:
+  frontend-dist:
   

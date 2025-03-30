@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract MyContract {
+contract MyContract_2 {
     // Хранение значения (переменная типа uint256)
     uint256 public storedValue;
 
