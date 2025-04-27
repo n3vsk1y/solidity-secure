@@ -1,67 +1,44 @@
+version: '3.8'
+
 services:
-  analysis:
-    build: ./services/analysis
-    restart: always
-    ports:
-      - "8001:8000"
-    networks:
-      - app-network
-    
-  auth:
-    build: ./services/auth
-    restart: always
-    ports:
-      - "8002:8000"
-    networks:
-      - app-network
-
-  history:
-    build: ./services/history
-    restart: always
-    ports:
-      - "8003:8000"
-    networks:
-      - app-network
-
-  upload:
-    build: ./services/upload
-    restart: always
-    ports:
-      - "8004:8000"
-    networks:
-      - app-network
-
   nginx:
     build: ./nginx
     ports:
       - "80:80"
-    volumes:
-      - frontend-dist:/usr/share/nginx/html
-    networks:
-      - app-network
+    depends_on:
+      - client
+
+  client:
+    build: ./client
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0 --port 5173
     depends_on:
       - analysis
       - auth
       - history
       - upload
 
-  frontend:
-    build: ./client
-    # ports:
-    #   - '3000:80'
-    # environment:
-    #   - VITE_HOST=0.0.0.0
-    volumes:
-      - frontend-dist:/app/dist
-    networks:
-      - app-network
-    depends_on:
-      - nginx
+  analysis:
+    build: ./services/analysis
+    ports:
+      - "8000:8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
-networks:
-  app-network:
-    driver: bridge
+  auth:
+    build: ./services/auth
+    ports:
+      - "8001:8001"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001
 
-volumes:
-  frontend-dist:
-  
+  history:
+    build: ./services/history
+    ports:
+      - "8002:8002"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8002
+
+  upload:
+    build: ./services/upload
+    ports:
+      - "8003:8003"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8003
