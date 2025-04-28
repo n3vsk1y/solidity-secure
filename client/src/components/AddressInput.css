@@ -1,0 +1,58 @@
+.inputContainer {
+    display: flex;
+    flex-direction: column;
+    margin: 16px 0;
+    width: 90vw;
+}
+
+.label {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.input {
+    padding: 10px 14px;
+    border: 2px solid #444;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    outline: none;
+    background-color: #1f1f1f;
+    color: #fff;
+}
+
+.input::placeholder {
+    color: #888;
+}
+
+.input:focus {
+    border-color: #227ce2;
+}
+
+/* Зелёная граница при валидности */
+.inputValid {
+    border-color: #32cc3a;
+}
+
+/* Красная граница при ошибке и потере фокуса */
+.inputError {
+    border-color: #e74c3c;
+}
+
+/* Сообщение об ошибке */
+.error {
+    margin-top: 6px;
+    font-size: 13px;
+}
+
+/* Серое сообщение во время фокуса */
+.errorGray {
+    color: #888;
+}
+
+/* Красное сообщение после потери фокуса */
+.errorRed {
+    color: #e74c3c;
+}
