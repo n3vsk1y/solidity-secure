@@ -12,6 +12,6 @@ class AuthServiceError(BaseAuthServiceError):
         super().__init__(message, code, meta)
 
 
-class EnvVariablesError(BaseAuthServiceError):
+class CredentialsError(BaseAuthServiceError):
     def __init__(self, message: str, code: int | None, meta: Any = None):
         super().__init__(message, code, meta)

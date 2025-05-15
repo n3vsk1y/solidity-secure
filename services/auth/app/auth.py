@@ -1,77 +1,114 @@
-import os
-import uvicorn
 from fastapi import APIRouter
-from fastapi import Request
-
-from starlette.config import Config
-from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import HTMLResponse
-from starlette.responses import RedirectResponse
-from authlib.integrations.starlette_client import OAuth
+from loguru import logger
+from starlette.requests import Request
+from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 from authlib.integrations.starlette_client import OAuthError
 
-from app.error import EnvVariablesError
+from app.db import valid_email_from_db
+from app.oauth import oauth
+from app.jwt_utils import create_token, create_refresh_token, decode_token
+from app.error import CredentialsError
 
-auth = APIRouter(tags=['Auther'])
+auth = APIRouter(tags=['Authentication'])
 
-# OAuth settings
-GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-
-if GOOGLE_CLIENT_ID is None or GOOGLE_CLIENT_SECRET is None:
-    raise EnvVariablesError('Missing env variables')
 
 @auth.get('/')
-async def test():
-    return {"auther": "внутри роута"}
+async def public(request: Request):
+    # user = request.session.get('user')
+    # if user:
+    #     name = user.get('name')
+    #     return HTMLResponse(f'<p>Hello {name}!</p><a href="/logout">Logout</a>')
+    # return HTMLResponse('<body><a href="/auth/login">Log In</a></body>')
+
+    request_info = {
+        'user': request.session.get('user'),
+        "method": request.method,
+        "url": str(request.url),
+        "headers": dict(request.headers),
+        "query_params": dict(request.query_params),
+        "path_params": dict(request.path_params),
+        "cookies": dict(request.cookies),
+        "client": {"host": request.client.host, "port": request.client.port} if request.client else None,
+    }
+    return JSONResponse(request_info)
+
 
 @auth.get('/login')
-async def test():
-    return {"login": "внутри роута"}
-
-# Set up OAuth
-# config_data = {
-#     'GOOGLE_CLIENT_ID': GOOGLE_CLIENT_ID, 
-#     'GOOGLE_CLIENT_SECRET': GOOGLE_CLIENT_SECRET
-# }
-# starlette_config = Config(environ=config_data)
-# oauth = OAuth(starlette_config)
-# oauth.register(
-#     name='google',
-#     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-#     client_kwargs={'scope': 'openid email profile'},
-# )
+async def login(request: Request):
+    redirect_uri = "http://localhost/api/auth/callback"
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
+@auth.get('/callback')
+async def callback(request: Request):
+    try:
+        token = await oauth.google.authorize_access_token(request)
+        user = await oauth.google.parse_id_token(request, token=token)
+        return JSONResponse(status_code=200, content={"user": user})
+    except OAuthError as e:
+        return JSONResponse(status_code=401, content={"error": str(e)})
+    except Exception as e:
+        return JSONResponse(status_code=401, content={"error": str(e)})
 
-# @auth.get('/')
-# def public(request: Request):
-#     user = request.session.get('user')
-#     if user:
-#         name = user.get('name')
-#         return HTMLResponse(f'<p>Hello {name}!</p><a href=/logout>Logout</a>')
-#     return HTMLResponse('<a href=/login>Login</a>')
+    if not valid_email_from_db(user['email']):
+        return JSONResponse(status_code=403, content={"error": "Email not allowed"})
+
+    access_token = create_token(user['sub'], user['email'])
+    refresh_token = create_refresh_token(user['sub'], user['email'])
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            'access_token': access_token,
+            'refresh_token': refresh_token,
+            'expires_in': 3600,
+            'token_type': 'Bearer',
+            'scope': 'openid email profile'
+        }
+    )
 
 
-# @auth.route('/logout')
-# async def logout(request: Request):
-#     request.session.pop('user', None)
-#     return RedirectResponse(url='/')
-
-
-# @auth.route('/login')
-# async def login(request: Request):
-#     redirect_uri = request.url_for('auth')  # This creates the url for our /auth endpoint
-#     return await oauth.google.authorize_redirect(request, redirect_uri)
-
-
-# @auth.route('/auth')
-# async def auth(request: Request):
+# @auth.post('/refresh')
+# async def refresh(request: Request):
 #     try:
-#         access_token = await oauth.google.authorize_access_token(request)
-#     except OAuthError:
-#         return RedirectResponse(url='/')
-#     user_data = await oauth.google.parse_id_token(request, access_token)
-#     request.session['user'] = dict(user_data)
-#     return RedirectResponse(url='/')
+#         data = await request.json()
+#         refresh_token = data.get('refresh_token')
+#         if not refresh_token:
+#             raise CredentialsError("Refresh token is missing")
+
+#         payload = decode_token(refresh_token, config['JWT_SECRET_KEY'])
+#         if not payload:
+#             raise CredentialsError("Invalid refresh token")
+
+#         user_id = payload.get('sub')
+#         email = payload.get('email')
+
+#         access_token = create_token(user_id, email)
+#         refresh_token = create_refresh_token(user_id, email)
+
+#         return JSONResponse(
+#             status_code=200,
+#             content={
+#                 'access_token': access_token,
+#                 'refresh_token': refresh_token,
+#                 'expires_in': 3600,
+#                 'token_type': 'Bearer',
+#                 'scope': 'openid email profile'
+#             }
+#         )
+#     except CredentialsError as e:
+#         return JSONResponse(status_code=401, content={"error": str(e)})
+#     except Exception as e:
+#         return JSONResponse(status_code=500, content={"error": str(e)})
+
+
+
+
+
+
+
+
+
+
+
 
