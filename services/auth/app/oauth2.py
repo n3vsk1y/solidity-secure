@@ -1,9 +1,9 @@
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 
-from app.db import valid_email_from_db, is_token_blacklisted
-from app.error import CredentialsError
-from app.jwt_utils import decode_token
+from db import valid_email_from_db, is_token_blacklisted
+from error import CredentialsError
+from jwt_utils import decode_token
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/auth/token')

@@ -16,27 +16,29 @@ services:
       - upload
 
   analysis:
+    tty: true
     build: ./services/analysis
-    ports:
-      - "8000:8000"
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    command: python3 ./app/main.py
+    depends_on:
+      - auth
 
   auth:
+    tty: true
     build: ./services/auth
     env_file: ./services/auth/.env
-    ports:
-      - "8001:8001"
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8001
+    command: python3 ./app/main.py
+    depends_on:
+      - history
 
   history:
+    tty: true
     build: ./services/history
-    ports:
-      - "8002:8002"
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8002
+    command: python3 ./app/main.py
+    depends_on:
+      - upload
 
   upload:
+    tty: true
     build: ./services/upload
-    ports:
-      - "8003:8003"
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8003
+    command: python3 ./app/main.py
     

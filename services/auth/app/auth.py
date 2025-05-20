@@ -4,22 +4,16 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, RedirectResponse
 from authlib.integrations.starlette_client import OAuthError
 
-from app.db import valid_email_from_db
-from app.oauth import oauth
-from app.jwt_utils import create_token, verify_token
-from app.error import CredentialsError
+from db import valid_email_from_db
+from oauth import oauth
+from jwt_utils import create_token, verify_token
+from error import CredentialsError
 
 auth = APIRouter(tags=['Authentication'])
 
 
 @auth.get('/')
 async def public(request: Request):
-    # user = request.session.get('user')
-    # if user:
-    #     name = user.get('name')
-    #     return HTMLResponse(f'<p>Hello {name}!</p><a href='/logout'>Logout</a>')
-    # return HTMLResponse('<body><a href='/auth/login'>Log In</a></body>')
-
     request_info = {
         'user': request.session.get('user'),
         'method': request.method,
@@ -44,12 +38,13 @@ async def callback(request: Request):
     try:
         token = await oauth.google.authorize_access_token(request)
         user = token.get('userinfo')
+        logger.error(user)
     except OAuthError as e:
         return HTTPException(status_code=401, detail=f'OAuthError: {str(e)}')
     except Exception as e:
         return HTTPException(status_code=401, detail=f'error: {str(e)}')
 
-    if not valid_email_from_db(user['email']):
+    if not await valid_email_from_db(user['email']):
         return HTTPException(status_code=403, detail='Email not allowed')
 
     access_token = await create_token('access', user['sub'], user['email'], user['name'], user['picture'])
