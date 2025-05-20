@@ -42,13 +42,16 @@ button {
 	font-size: 1em;
 	font-weight: 500;
 	font-family: inherit;
+    border-radius: 0.4rem;
+    border-color: #ffffff00;
 	background-color: #1a1a1a;
 	cursor: pointer;
-	transition: border-color 0.25s;
+	transition: transform 0.5s, border-color 0.5s;
 }
 
 button:hover {
 	transform: scale(1.05);
+    border-color: #227ce2;
 }
 
 @media (prefers-color-scheme: light) {
