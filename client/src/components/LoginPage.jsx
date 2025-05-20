@@ -1,17 +1,11 @@
 import React from 'react'
 import './LoginPage.css'
 
-function LoginPage({ onLogin }) {
-	const handleGoogleLogin = async () => {
-		try {
-			const response = await fetch('http://localhost/api/auth/login', {
-				method: 'GET',
-				credentials: 'include',
-			})
-		} catch (error) {
-			console.error('Ошибка при авторизации:', error)
-		}
-	}
+function LoginPage() {
+    
+    const handleGoogleLogin = () => {
+        window.location.href = 'http://localhost/api/auth/login'
+    }
 
 	return (
 		<div className="login-container">

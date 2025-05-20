@@ -1,14 +1,30 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
 import ContractDropzone from './components/ContractDropzone'
 import AddressInput from './components/AddressInput'
+
 import { sendContractAddress, sendContractFile } from './Api'
 
 import './MainApp.css'
 
 function MainApp() {
-	const [contractAddress, setContractAddress] = useState('')
-	const [uploadedFile, setUploadedFile] = useState(null)
-	const [loading, setLoading] = useState(false)
+	const [userData, setUserData] = useState(null)
+    const [contractAddress, setContractAddress] = useState('')
+    const [uploadedFile, setUploadedFile] = useState(null)
+    const [loading, setLoading] = useState(false)
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const response = await fetch('http://localhost/api/auth/check')
+                const data = await response.json()
+                setUserData(data)
+            } catch (error) {
+                console.error('Ошибка загрузки данных пользователя:', error)
+            }
+        }
+        fetchUserData()
+    }, [])
 
 	const handleFileAccepted = (file) => {
 		setUploadedFile(file)
@@ -44,22 +60,33 @@ function MainApp() {
 	}
 
 	const handleLogout = async () => {
-		try {
-			await fetch('http://your-fastapi-server/auth/logout', {
-				method: 'POST',
-				credentials: 'include',
-			})
-			window.location.reload()
-		} catch (error) {
-			console.error('Logout failed:', error)
-		}
-	}
+        try {
+            localStorage.removeItem("access_token")
+            setUserData(null)
+            location.reload()
+        } catch (error) {
+            console.error('Logout failed:', error)
+        }
+    }
 
 	return (
 		<main>
-			<button onClick={handleLogout} className="logout-btn">
-				Выйти
-			</button>
+			{userData && (
+                <header>
+                    <div className="user-info">
+                        <img 
+                            src={userData.picture} 
+                            alt="User avatar" 
+                            className="user-avatar"
+                        />
+                        <span className="user-name">{userData.name}</span>
+                        <span className="user-email">({userData.email})</span>
+                    </div>
+                    <button onClick={handleLogout} className="logout-btn">
+                        Выйти
+                    </button>
+                </header>
+            )}
 			<div className="zone">
 				<ContractDropzone
 					onFilesDropped={handleFileAccepted}
