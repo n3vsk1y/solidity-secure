@@ -1,0 +1,49 @@
+main {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: start;
+	align-items: center;
+}
+
+main > div {
+	margin: 3rem 0;
+}
+
+header {
+    width: 100vw;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.user-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-name {
+    margin: 0 0.5rem;
+}
+
+.user-email {
+    color: #999;
+}
+
+.logout-btn {
+    width: 10rem;
+}
+
+.or {
+	font-size: 2rem;
+	font-weight: 100;
+}

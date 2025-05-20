@@ -1,69 +1,53 @@
-import { useState } from 'react';
-import ContractDropzone from './components/ContractDropzone';
-import AddressInput from './components/AddressInput';
-import { sendContractAddress, sendContractFile } from './Api';
+// src/App.jsx
+import { useState, useEffect } from 'react'
+import LoginPage from './components/LoginPage'
+import MainApp from './MainApp'
 
-import './App.css';
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
-    const [contractAddress, setContractAddress] = useState('');
-    const [uploadedFile, setUploadedFile] = useState(null);
-    const [loading, setLoading] = useState(false);
+	const [isAuthenticated, setIsAuthenticated] = useState(false)
+	const [loading, setLoading] = useState(true)
 
-    const handleFileAccepted = (file) => {
-        setUploadedFile(file);
-        setContractAddress('');
-    };
+	useEffect(() => {
+		const url = new URL(window.location.href)
+		const accessToken = url.searchParams.get('access_token')
+		console.log('access: ', accessToken)
 
-    const handleAddressChange = (newAddress) => {
-        setContractAddress(newAddress);
-        if (uploadedFile) setUploadedFile(null);
-    };
+		if (accessToken) {
+			localStorage.setItem('access_token', accessToken)
+			setIsAuthenticated(true)
+			setLoading(false)
+			window.history.replaceState({}, document.title, '/')
+			return
+		}
 
-    const handleAnalyze = async () => {
-        if (!contractAddress && !uploadedFile) {
-            alert('Выберите файл или введите адрес контракта');
-            return;
-        }
+		const checkAuth = async () => {
+			try {
+				const response = await fetch(
+					'http://localhost/api/auth/check',
+					{
+						credentials: 'include',
+					}
+				)
+				if (response.ok) {
+					setIsAuthenticated(true)
+				}
+			} catch (error) {
+				console.error('Auth check failed:', error)
+			} finally {
+				setLoading(false)
+			}
+		}
 
-        setLoading(true);
-        try {
-            let response;
-            if (uploadedFile) {
-                response = await sendContractFile(uploadedFile);
-            } else if (contractAddress) {
-                response = await sendContractAddress(contractAddress);
-            }
-            console.log('Результат анализа:', response);
-        } catch (error) {
-            console.error('Ошибка анализа:', error);
-            alert('Ошибка анализа. Проверьте данные и попробуйте снова.');
-        } finally {
-            setLoading(false);
-        }
-    };
+		checkAuth()
+	}, [])
 
-    return (
-        <main>
-            <div className="zone">
-                <ContractDropzone
-                    onFilesDropped={handleFileAccepted}
-                    disabled={!!contractAddress}
-                />
-            </div>
-            <span className="or">или</span>
-            <div className="address">
-                <AddressInput
-                    value={contractAddress}
-                    onChange={handleAddressChange}
-                    disabled={!!uploadedFile}
-                />
-            </div>
-            <button className="analyze" onClick={handleAnalyze} disabled={loading}>
-                {loading ? 'Анализирую...' : 'Анализировать'}
-            </button>
-        </main>
-    );
+	if (loading) {
+		return <div>Проверка аутентификации...</div>
+	}
+
+	return <>{isAuthenticated ? <ProtectedRoute><MainApp /></ProtectedRoute> : <LoginPage />}</>
 }
 
-export default App;
+export default App
