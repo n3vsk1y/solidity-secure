@@ -6,6 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
+from analysis import analysis
+
 class InterceptHandler(logging.Handler):
     def emit(self, record):
         try:
@@ -33,11 +35,11 @@ logging.basicConfig(handlers=[InterceptHandler()], level=0)
 
 
 app = FastAPI(title="Analyze Service")
-
-
+app.include_router(analysis)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost"],
+    # allow_origins=["http://localhost"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "OPTIONS", "DELETE", "PATCH", "PUT"],
     allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Headers", "Access-Control-Allow-Origin",

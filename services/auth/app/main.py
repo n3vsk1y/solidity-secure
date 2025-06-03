@@ -35,10 +35,10 @@ logger.add(
 
 logging.basicConfig(handlers=[InterceptHandler()], level=0)
 
-app = FastAPI(title="Auth Service")
-
 SECRET_KEY = os.getenv("SECRET_KEY")
 
+app = FastAPI(title="Auth Service")
+app.include_router(auth)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost"],
@@ -47,13 +47,10 @@ app.add_middleware(
     allow_headers=["Content-Type", "Set-Cookie", "Access-Control-Allow-Headers", "Access-Control-Allow-Origin",
                    "Authorization"],
 )
-
 app.add_middleware(
     SessionMiddleware,
     secret_key=SECRET_KEY
 )
-
-app.include_router(auth)
 
 
 @app.get("/")
