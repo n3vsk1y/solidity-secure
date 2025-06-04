@@ -5,6 +5,8 @@ services:
       - "80:80"
     depends_on:
       - client
+    logging:
+      driver: none
 
   client:
     build: ./client
@@ -12,13 +14,13 @@ services:
     depends_on:
       - analysis
       - auth
-      - history
-      - upload
 
   analysis:
     tty: true
     build: ./services/analysis
     command: python3 ./app/main.py
+    ports: 
+      - 8000:8000
     depends_on:
       - auth
 
@@ -27,18 +29,5 @@ services:
     build: ./services/auth
     env_file: ./services/auth/.env
     command: python3 ./app/main.py
-    depends_on:
-      - history
 
-  history:
-    tty: true
-    build: ./services/history
-    command: python3 ./app/main.py
-    depends_on:
-      - upload
-
-  upload:
-    tty: true
-    build: ./services/upload
-    command: python3 ./app/main.py
     

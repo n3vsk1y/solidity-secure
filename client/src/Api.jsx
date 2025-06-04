@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const apiClient = axios.create({
-	baseURL: 'http://127.0.0.1:8000/api',
+	baseURL: 'http://localhost/api',
 })
 
 export async function sendContractFile(file) {
@@ -9,12 +9,12 @@ export async function sendContractFile(file) {
 	formData.append('file', file)
 
 	try {
-		const response = await apiClient.post('/upload', formData, {
+		const response = await apiClient.post('/analysis/file', formData, {
 			headers: {
 				'Content-Type': 'multipart/form-data',
 			},
 		})
-		return response.data
+		return response.data // массив ошибок
 	} catch (error) {
 		console.error('Ошибка при отправке файла:', error)
 		throw error

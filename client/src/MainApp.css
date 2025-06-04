@@ -47,3 +47,35 @@ header {
 	font-size: 2rem;
 	font-weight: 100;
 }
+
+.analysis-results {
+	margin-top: 2rem;
+	padding: 1rem;
+	background: #232323;
+	border-radius: 1rem;
+	width: 90vw;
+	max-width: 700px;
+	color: #fff;
+}
+.analysis-results h2 {
+	margin-top: 0;
+}
+.analysis-results ul {
+	list-style: none;
+	padding: 0;
+}
+.analysis-results li {
+	margin-bottom: 1.2rem;
+	padding: 0.7rem 1rem;
+	border-radius: 0.5rem;
+	background: #292929;
+}
+.severity-high {
+	border-left: 6px solid #e74c3c;
+}
+.severity-medium {
+	border-left: 6px solid #f1c40f;
+}
+.severity-low {
+	border-left: 6px solid #32cc3a;
+}

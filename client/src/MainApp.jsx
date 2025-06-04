@@ -12,6 +12,7 @@ function MainApp() {
     const [contractAddress, setContractAddress] = useState('')
     const [uploadedFile, setUploadedFile] = useState(null)
     const [loading, setLoading] = useState(false)
+	const [analysisResults, setAnalysisResults] = useState([])
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -29,11 +30,13 @@ function MainApp() {
 	const handleFileAccepted = (file) => {
 		setUploadedFile(file)
 		setContractAddress('')
+		setAnalysisResults([])
 	}
 
 	const handleAddressChange = (newAddress) => {
 		setContractAddress(newAddress)
 		if (uploadedFile) setUploadedFile(null)
+		setAnalysisResults([])
 	}
 
 	const handleAnalyze = async () => {
@@ -43,6 +46,7 @@ function MainApp() {
 		}
 
 		setLoading(true)
+		setAnalysisResults([])
 		try {
 			let response
 			if (uploadedFile) {
@@ -51,6 +55,7 @@ function MainApp() {
 				response = await sendContractAddress(contractAddress)
 			}
 			console.log('Результат анализа:', response)
+			setAnalysisResults(response)
 		} catch (error) {
 			console.error('Ошибка анализа:', error)
 			alert('Ошибка анализа. Проверьте данные и попробуйте снова.')
@@ -108,6 +113,22 @@ function MainApp() {
 			>
 				{loading ? 'Анализирую...' : 'Анализировать'}
 			</button>
+			{analysisResults.length > 0 && (
+				<div className="analysis-results">
+					<h2>Результаты анализа</h2>
+					<ul>
+						{analysisResults.map((issue, idx) => (
+							<li key={idx} className={`severity-${issue.severity.toLowerCase()}`}>
+								<strong>{issue.title}</strong> [{issue.severity}]<br />
+								Контракт: {issue.contract}<br />
+								Описание: {issue.description}<br />
+								{issue.impact && <>Влияние: {issue.impact}<br /></>}
+								{issue.confidence && <>Достоверность: {issue.confidence}<br /></>}
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
 		</main>
 	)
 }
